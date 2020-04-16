@@ -1,0 +1,13 @@
+<h1>{{ quiz.name }}</h1>
+{% for question in quiz.question_set.all %}
+    {% for answer in question.answer_set.all %}
+        {% if answer.answer_selected is True %}
+            {% if answer.answer_weight < 1.0 %}
+                <h3>{{ question.question_text }}</h3>
+                {% for feedback in answer.feedback_set.all %}
+                <label>{{ feedback.feedback_text }}</label>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
