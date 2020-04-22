@@ -34,5 +34,5 @@ urlpatterns = [
 
     # ex: /quizzes/1/feedback/user_id
     # Shows the user the feedback for their quiz
-    path('<int:pk>/feedback/', views.FeedbackView.as_view(), name='feedback'),
+    path('<int:quiz_id>/feedback/', views.feedback, name='feedback'),
 ]
