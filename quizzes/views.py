@@ -38,9 +38,13 @@ class QuestionDetailView(generic.DetailView):
     template_name = 'quizzes/question_detail.html'
 
 
-class FeedbackView(generic.DetailView):
-    model = Feedback
-    template_name = 'quizzes/feedback.html'
+def feedback(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    return render(request, 'quizzes/feedback.html', {
+        'quiz': quiz,
+        'feed_dict': request.session[quiz.session_feedback()],
+        'norm_scores': request.session[quiz.session_norm_data()],
+        })
 
 
 def new_quiz(request, quiz_id, category_id):
@@ -143,6 +147,7 @@ def normalize_scores(request, quiz_id):
         if norm_score_list[i] is not None:
             norm_score_dict[str(i + 1)] = norm_score_list[i]
     request.session[quiz.session_norm_data()] = norm_score_dict
+    return request.session[quiz.session_norm_data()]
 
 
 def results(request, quiz_id):
@@ -172,6 +177,7 @@ def results(request, quiz_id):
                     innerdict.update({question.question_text: feedback.feedback_text})
         feedback_set.update({category.category_name: innerdict})
     request.session[quiz.session_feedback()] = feedback_set
+    return request.session[quiz.session_feedback()]
 
 
 def select_answer(request, quiz_id, category_id, question_id):
@@ -215,6 +221,6 @@ def select_answer(request, quiz_id, category_id, question_id):
         if question_id == last_question:  # Finished Answering Questions for quiz, redirect to feedback
             normalize_scores(request, quiz_id)
             results(request, quiz_id)
-            return redirect('quizzes:feedback', quiz_id)
+            return HttpResponseRedirect(reverse('quizzes:feedback', args=(quiz_id,)))
         else:
             return HttpResponseRedirect(reverse('quizzes:take_quiz', args=(quiz_id, category_id, question_id + 1)))
