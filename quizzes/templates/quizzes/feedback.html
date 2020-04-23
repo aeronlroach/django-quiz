@@ -1,26 +1,17 @@
-<h1>{{ feedback.parent_quiz.name }}</h1>
-    {% for category in feedback.parent_quiz.category_set.all %}
-        {% if category.score < 2 %}
-        <h2>{{ category.category_name }}: {{ category.score  }}</h2>
-            {% for question in category.question_set.all %}
-                {% for answer in question.answer_set.all %}
-                    {% if answer.answer_weight < 1 %}
-                        {% if answer.answer_selected is True %}
-                            <h3>{{ question.question_text}}</h3>
-                                {% for feedback in answer.feedback_set.all %}
-                                    <li>{{ feedback.feedback_text }}</li>
-                                {% endfor %}
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-        {% endif %}
-    <br>
-    {% endfor %}
-<br>
+<h1>{{ quiz.name }}</h1>
 
-{% for item in norm_score_scores %}
-    {{ item }}
+{% for category,feedback in feed_dict.items %}
+  {% for score in norm_scores.items %}
+<ul>
+    {% if forloop.counter == forloop.parentloop.counter %}
+      <h2>{{ category }}: {{ score.1 }}</h2>
+      {% for questiontext, feedbacktext in feedback.items %}
+      <h3>{{questiontext}}</h3>
+      <li>{{feedbacktext}}</li>
+      {% endfor %}
+    {% endif %}
+</ul>
+  {% endfor %}
 {% endfor %}
 
 <a href="{% url 'quizzes:index' %}">Back to Quiz Index</a>

@@ -2,6 +2,7 @@ import datetime
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from model_utils.managers import InheritanceManager
 
 
 # Structure Idea comes from:
@@ -28,6 +29,27 @@ class Quiz(models.Model):
         """Return the last five published quizzes"""
         return Quiz.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
 
+    def get_quiz_questions(self):
+        return self.question_set.all().select_subclasses()
+
+    def get_quiz_categories(self):
+        return self.category_set.all().select_subclasses()
+
+    def session_question_list(self):
+        return str(self.id) + "_quiz_question_list"
+
+    def session_quiz_data(self):
+        return str(self.id) + "_quiz_data"
+
+    def session_cat_data(self):
+        return str(self.id) + "_cat_data"
+
+    def session_norm_data(self):
+        return str(self.id) + "_norm_data"
+
+    def session_feedback(self):
+        return str(self.id) + "_feedback"
+
     class Meta:
         verbose_name_plural = 'Quizzes'
         db_table = "quiz"
@@ -43,6 +65,7 @@ class Category(models.Model):
     order = models.IntegerField(blank=True, null=True)
     description = models.CharField(_("Category Description"), max_length=2000, blank=True, null=True)
     score = models.FloatField(default=0)
+    objects = InheritanceManager()
 
     def __str__(self):
         return self.category_name
@@ -57,12 +80,19 @@ class Question(models.Model):
     # Parent Object
     parent_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, blank=True, null=True)
     parent_category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    objects = InheritanceManager()
 
     # Question Content
     question_text = models.CharField(_("Question"), max_length=600, blank=True, null=True)
 
     def __str__(self):
         return self.question_text
+
+    def get_answers(self):
+        return [
+                (answer.id, answer.answer_text, answer.answer_weight)
+                for answer in Answer.objects.filter(question=self)
+                ]
 
     class Meta:
         db_table = "question"
@@ -83,6 +113,9 @@ class Answer(models.Model):
     def __str__(self):
         return self.answer_text
 
+    def get_quiz_feedback(self):
+        return self.feedback_set.all().select_subclasses()
+
     class Meta:
         db_table = "answer"
 
@@ -101,6 +134,7 @@ class Feedback(models.Model):
     # Feedback content
     feedback_type = models.CharField(_("Feedback Type"), max_length=200, blank=True, null=True)
     feedback_text = models.CharField(_("Feedback"), max_length=600, blank=True, null=True)
+    objects = InheritanceManager()
 
     def __str__(self):
         return self.feedback_text
