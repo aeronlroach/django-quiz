@@ -76,8 +76,7 @@ def new_quiz(request, quiz_id, category_id):
     data = {}
     for i in range(len(categories)):
         innerdict = {}
-        category_name = categories[i]
-        category = Category.objects.filter(category_name=category_name).get()
+        category = categories[i]
         cat_questions = category.question_set.all()
         for j in range(len(cat_questions)):
             question_list_item = cat_questions[j]
@@ -99,8 +98,7 @@ def take_quiz(request, quiz_id, category_id, question_id):
     """
     # Get vars
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    next_question = request.session[quiz.session_question_list()][question_id - 1]
-    question_id = Question.objects.get_subclass(id=next_question)
+    question_id = Question.objects.get_subclass(id=question_id)
     return render(request, 'quizzes/take_quiz.html',
                   {'quiz': quiz.id, 'category': category_id, 'question': question_id})
 
@@ -127,25 +125,24 @@ def normalize_scores(request, quiz_id):
     Dictionary format: {category_id : normalized score}
     """
     quiz, quiz_data, category_score_dict, norm_score_dict, questions_list = get_session_data(request, quiz_id)
+    categories = quiz.get_quiz_categories()
 
     # Creating a list of the max score for each section, needed to normalize to a score range of 0 - 10
     old_max_list = []
     for i in range(len(category_score_dict)):
-        old_max_list.append(len(quiz_data[str(i + 1)]))
-        for value in quiz_data[str(i + 1)].items():
-            if value is None:
-                old_max_list[i + 1] -= 1
-
-        old_max_list.append(len(quiz_data[str(i + 1)]))
+        category = categories[i]
+        old_max_list.append(len(quiz_data[str(category.id)]))
 
     # Normalizing the old scores and populating the session variable session_norm_data
     norm_score_list = [
-        (10 / (old_max_list[(i + 1)] - 0)) * (category_score_dict[str(i + 1)] - old_max_list[(i + 1)]) + 10
+        (10 / (old_max_list[i] - 0)) * (category_score_dict[str(categories[i].id)] - old_max_list[i]) + 10
         for i in range(len(category_score_dict))
     ]
+
     for i in range(len(category_score_dict)):
+        category = categories[i]
         if norm_score_list[i] is not None:
-            norm_score_dict[str(i + 1)] = norm_score_list[i]
+            norm_score_dict[str(category.id)] = norm_score_list[i]
     request.session[quiz.session_norm_data()] = norm_score_dict
     return request.session[quiz.session_norm_data()]
 
@@ -163,13 +160,12 @@ def results(request, quiz_id):
     feedback_set = {}
     for i in range(len(categories)):
         innerdict = {}
-        category_name = categories[i]
-        category = Category.objects.filter(category_name=category_name).get()
+        category = categories[i]
         cat_questions = category.question_set.all()
         for j in range(len(cat_questions)):
             question = cat_questions[j]
             question = Question.objects.filter(id=question.id).get()
-            answer_text = quiz_data[str(i + 1)][str(question.id)]
+            answer_text = quiz_data[str(category.id)][str(question.id)]
             if answer_text is not None:
                 answer = Answer.objects.filter(answer_text=answer_text).get()
                 if answer.answer_weight < 1:
@@ -189,7 +185,8 @@ def select_answer(request, quiz_id, category_id, question_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     category = get_object_or_404(Category, pk=category_id)
     question = get_object_or_404(Question, pk=question_id)
-    last_question = len(quiz.question_set.all())
+    # last_question = len(quiz.question_set.all())
+    last_question = request.session[quiz.session_question_list()][-1]
 
     try:  # Check if an answer is selected
         selected_answer = question.answer_set.get(pk=request.POST['answer'])
