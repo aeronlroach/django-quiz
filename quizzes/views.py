@@ -40,10 +40,14 @@ class QuestionDetailView(generic.DetailView):
 
 def feedback(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
+    norm_scores_dict = request.session[quiz.session_norm_data()]
+    number_of_sections = 2
+    sorted_scores = {k: v for k, v in sorted(norm_scores_dict.items(), key=lambda item: item[1])[:number_of_sections]}
     return render(request, 'quizzes/feedback.html', {
         'quiz': quiz,
         'feed_dict': request.session[quiz.session_feedback()],
         'norm_scores': request.session[quiz.session_norm_data()],
+        'sorted_scores': sorted_scores,
         })
 
 
@@ -147,7 +151,7 @@ def normalize_scores(request, quiz_id):
     return request.session[quiz.session_norm_data()]
 
 
-def results(request, quiz_id):
+def get_session_feedback(request, quiz_id):
     """
     Function to create a dictionary of feedback for the session
     Returns a dictionary formatted:
@@ -217,7 +221,7 @@ def select_answer(request, quiz_id, category_id, question_id):
         # Continue with quiz, or redirect to feedback when on last question
         if question_id == last_question:  # Finished Answering Questions for quiz, redirect to feedback
             normalize_scores(request, quiz_id)
-            results(request, quiz_id)
+            get_session_feedback(request, quiz_id)
             return HttpResponseRedirect(reverse('quizzes:feedback', args=(quiz_id,)))
         else:
             return HttpResponseRedirect(reverse('quizzes:take_quiz', args=(quiz_id, category_id, question_id + 1)))
