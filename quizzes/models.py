@@ -29,6 +29,8 @@ class Quiz(models.Model):
         """Return the last five published quizzes"""
         return Quiz.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
 
+    # The following are functions for session variables
+
     def get_quiz_questions(self):
         return self.question_set.all().select_subclasses()
 
