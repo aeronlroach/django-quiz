@@ -49,7 +49,7 @@ def feedback(request, quiz_id):
 
 def new_quiz(request, quiz_id, category_id):
     """
-    Function to create a new session when "Take Quiz" is selected.
+    Function to create a new quiz session when "Take Quiz" is selected.
     """
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     quiz_id = quiz.id
@@ -59,14 +59,9 @@ def new_quiz(request, quiz_id, category_id):
     question_id = quiz.question_set.first().id
     question_list = [q.id for q in questions]
 
-    # Reset Quiz session
+    # Delete expired sessions and set a new session
     request.session.flush()
     request.session.set_expiry(120)
-
-    # Reset the category score values to zero
-    Category.objects.values_list('score').update(score=0)
-    # Reset the answer values to false
-    Answer.objects.values_list('answer_selected').update(answer_selected=False)
 
     # Set session variables for quiz
     request.session[quiz.session_question_list()] = question_list
