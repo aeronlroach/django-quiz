@@ -49,7 +49,7 @@ def feedback(request, quiz_id):
 
 def new_quiz(request, quiz_id, category_id):
     """
-    Function to create a new quiz session when "Take Quiz" is selected.
+    Function to create a new quiz session when "Take Quiz" button is selected.
     """
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     quiz_id = quiz.id
