@@ -1,3 +1,6 @@
+import csv, io, datetime
+from django.contrib.auth.decorators import permission_required
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -40,15 +43,95 @@ class QuestionDetailView(generic.DetailView):
 
 def feedback(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
+    feed_dict = request.session[quiz.session_feedback()]
     norm_scores_dict = request.session[quiz.session_norm_data()]
     number_of_sections = 2
     sorted_scores = {k: v for k, v in sorted(norm_scores_dict.items(), key=lambda item: item[1])[:number_of_sections]}
     return render(request, 'quizzes/feedback.html', {
         'quiz': quiz,
-        'feed_dict': request.session[quiz.session_feedback()],
-        'norm_scores': request.session[quiz.session_norm_data()],
+        'feed_dict': feed_dict,
+        'norm_scores': norm_scores_dict,
         'sorted_scores': sorted_scores,
         })
+
+
+@permission_required('admin.can_add_log_entry')
+def quiz_upload(request):
+    """
+    This is a function that lets the superuser upload a CSV to create a new quiz.
+    """
+    template = "quizzes/quiz_upload.html"
+    prompt = {
+        'headerorder': 'Order of the CSV header should be Quiz name, pub_date, description',
+        'order': 'Order for rest of CSV should be Quiz name, '
+                 'category_name, question_text, answer_text, answer_weight, feedback_text'
+    }
+    if request.method == 'GET':
+        return render(request, template, prompt)
+
+    csv_file = request.FILES['file']
+
+    if not csv_file.name.endswith('.csv'):
+        messages.error(request,'This is not a csv file')
+
+    quiz_contents = csv_file.read().decode('UTF-8')
+    io_string = io.StringIO(quiz_contents)
+    for row in csv.reader(io_string, delimiter= ',',quotechar="|"):
+        if len(row) <= 3:
+            try:
+                quiz_obj, created = Quiz.objects.update_or_create(
+                    name=row[0],
+                    # Just using this because I couldn't get my csv datetime formatted correctly,
+                    # this will change when active/inactive is implemented
+                    pub_date=datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S.%f'),
+                    description=row[2]
+                )
+            except IndexError:
+                quiz, created = Quiz.objects.update_or_create(
+                    name=row[0],
+                    # Same as above
+                    pub_date=datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S.%f'),
+                    description=''
+                )
+        else:
+            quiz = Quiz.objects.filter(name=row[0]).get()
+            category_obj, created = Category.objects.update_or_create(
+                parent_quiz=quiz,
+                category_name=row[1],
+                order=0,
+                description='',
+                score=0
+            )
+            category = Category.objects.filter(category_name=row[1]).get()
+            question_obj, created = Question.objects.update_or_create(
+                parent_quiz=quiz,
+                parent_category=category,
+                question_text=row[2]
+            )
+            question = Question.objects.filter(question_text=row[2]).get()
+            answer_obj, created = Answer.objects.update_or_create(
+                parent_quiz=quiz,
+                parent_category=category,
+                parent_question=question,
+                answer_text=row[3],
+                answer_selected=False,
+                answer_weight=row[4]
+            )
+            answer = Answer.objects.filter(answer_text=row[3]).get()
+            feedback_obj, created = Feedback.objects.update_or_create(
+                parent_quiz=quiz,
+                parent_category=category,
+                parent_question=question,
+                parent_answer=answer,
+                feedback_type='',
+                feedback_text=row[5]
+            )
+    context = {
+        "success": 'The quiz was uploaded successfully',
+        'headerorder': 'Order of the CSV header should be Quiz name, pub_date, description',
+        'order': 'Order for rest of CSV should be Quiz name, '
+                 'category_name, question_text, answer_text, answer_weight, feedback_text'}
+    return render(request, template, context)
 
 
 def new_quiz(request, quiz_id, category_id):

@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from quizzes.views import quiz_upload
 
 urlpatterns = [
     path('quizzes/', include('quizzes.urls')),
     path('admin/', admin.site.urls),
     path('nested_admin/', include('nested_admin.urls')),
+    path('upload-csv/', quiz_upload, name="quiz_upload"),
 ]
