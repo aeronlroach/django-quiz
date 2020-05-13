@@ -46,12 +46,12 @@ def feedback(request, quiz_id):
     feed_dict = request.session[quiz.session_feedback()]
     norm_scores_dict = request.session[quiz.session_norm_data()]
     number_of_sections = 2
-    sorted_scores = {k: v for k, v in sorted(norm_scores_dict.items(), key=lambda item: item[1])[:number_of_sections]}
+    sorted_scores_limited = {k: v for k, v in sorted(norm_scores_dict.items(), key=lambda item: item[1])[:number_of_sections]}
     return render(request, 'quizzes/feedback.html', {
         'quiz': quiz,
         'feed_dict': feed_dict,
         'norm_scores': norm_scores_dict,
-        'sorted_scores': sorted_scores,
+        'sorted_scores_limit': sorted_scores_limited,
         })
 
 
