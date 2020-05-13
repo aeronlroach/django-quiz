@@ -1,6 +1,6 @@
 <h1>{{ quiz.name }}</h1>
 
-{% for item in sorted_scores.items %}
+{% for item in sorted_scores_limit.items %}
     {% for score in norm_scores.items %}
         {% if item.1 == score.1 %}
         {% for category,feedback in feed_dict.items %}
