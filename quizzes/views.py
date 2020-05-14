@@ -18,8 +18,8 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_quiz_list'
 
     def get_queryset(self):
-        """Return the last five published quizzes"""
-        return Quiz.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
+        """Return the last five published, active quizzes"""
+        return Quiz.objects.filter(active_quiz__lte=True).order_by('-pub_date')[:5]
 
 
 class QuizDetailView(generic.DetailView):
@@ -62,7 +62,7 @@ def quiz_upload(request):
     """
     template = "quizzes/quiz_upload.html"
     prompt = {
-        'headerorder': 'Order of the CSV header should be Quiz name, pub_date, description',
+        'header order': 'Order of the CSV header should be Quiz name, pub_date, description',
         'order': 'Order for rest of CSV should be Quiz name, '
                  'category_name, question_text, answer_text, answer_weight, feedback_text'
     }
@@ -267,7 +267,6 @@ def select_answer(request, quiz_id, category_id, question_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     category = get_object_or_404(Category, pk=category_id)
     question = get_object_or_404(Question, pk=question_id)
-    # last_question = len(quiz.question_set.all())
     last_question = request.session[quiz.session_question_list()][-1]
 
     try:  # Check if an answer is selected
@@ -280,8 +279,7 @@ def select_answer(request, quiz_id, category_id, question_id):
             'error_message': "You didn't select an answer.",
         })
     else:
-        # Update parameters based on selection
-        # selected_answer.answer_selected = True
+        # Update session variables based on selection
         question_scores = request.session[quiz.session_quiz_data()]
         question_scores[str(category_id)][str(question_id)] = selected_answer.answer_text
         category_score = request.session[quiz.session_cat_data()]
@@ -291,10 +289,6 @@ def select_answer(request, quiz_id, category_id, question_id):
         elif category_score[str(category_id)] is not None:
             category_score[str(category.id)] = category_score[str(category.id)] + answer_score
         request.session[quiz.session_cat_data()] = category_score
-        # category_score = category.score
-        # answer_score = selected_answer.answer_weight
-        # Category.objects.filter(id=category_id).update(score=category_score + answer_score)
-        # selected_answer.save()
 
         # Continue with quiz, or redirect to feedback when on last question
         if question_id == last_question:  # Finished Answering Questions for quiz, redirect to feedback

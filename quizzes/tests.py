@@ -11,18 +11,19 @@ from .models import Quiz
 # Built following alongside Django Software Foundation's Writing your first Django app Tutorial
 # https://docs.djangoproject.com/en/3.0/intro/tutorial01/
 
+
 class QuizModelTests(TestCase):
 
-    def test_was_published_recently_with_future_question(self):
+    def test_published_recently_future(self):
         """
-        was_published_recently() returns False for questions whose pub_date
+        was_published_recently() returns False for quizzes whose pub_date
         is in the future.
         """
         time = timezone.now() + datetime.timedelta(days=30)
         future_quiz = Quiz(pub_date=time)
         self.assertIs(future_quiz.was_published_recently(), False)
 
-    def test_was_published_recently_with_old_question(self):
+    def test_published_recently_old(self):
         """
         was_published_recently() returns False for quizzes whose pub_date
         is older than 1 day.
@@ -31,7 +32,7 @@ class QuizModelTests(TestCase):
         old_quiz = Quiz(pub_date=time)
         self.assertIs(old_quiz.was_published_recently(), False)
 
-    def test_was_published_recently_with_recent_question(self):
+    def test_published_recently_recent(self):
         """
         was_published_recently() returns True for quizzes whose pub_date
         is within the last day.
@@ -39,6 +40,20 @@ class QuizModelTests(TestCase):
         time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
         recent_quiz = Quiz(pub_date=time)
         self.assertIs(recent_quiz.was_published_recently(), True)
+
+    def test_active(self):
+        """
+         check_active() returns True for active quizzes
+        """
+        activated_quiz = Quiz(active_quiz=True)
+        self.assertIs(activated_quiz.check_active(),True)
+
+    def test_inactive(self):
+        """
+        check_active() returns False for inactive quizzes
+        """
+        inactive_quiz = Quiz(active_quiz=True)
+        self.assertIs(inactive_quiz.check_active(),True)
 
 
 def create_quiz(quiz_name, days):
