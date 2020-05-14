@@ -17,6 +17,7 @@ class Quiz(models.Model):
     name = models.CharField(_("Quiz Name"), max_length=200, blank=True, null=True)
     pub_date = models.DateTimeField('date published')
     description = models.CharField(_("Quiz Description"), max_length=200, blank=True, null=True)
+    active_quiz = models.BooleanField("Active", default=False)
 
     def __str__(self):
         return self.name
@@ -24,6 +25,12 @@ class Quiz(models.Model):
     def was_published_recently(self):
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
+
+    def check_active(self):
+        if self.active_quiz is True:
+            return True
+        else:
+            return False
 
     def get_queryset(self):
         """Return the last five published quizzes"""
