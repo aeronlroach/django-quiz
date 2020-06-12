@@ -146,7 +146,7 @@ These three lines represent a category that has question with has three answer c
 Uploading a Quiz
 ****************
 
-After following the csv formatting instructions in `Making a Quiz`_ start the server with
+After following the csv formatting instructions above start the server with:
 
     python manage.py runserver
 
