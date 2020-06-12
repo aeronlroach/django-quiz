@@ -76,7 +76,7 @@ Visit the local server at `127.0.0.1:8000/admin` to log-in and see the admin pan
 It is recommended that you build a quiz using a csv file. While in-browser building is available, the relational linking must be completed manually. The csv method automates this process.
 
 ### CSV Formatting
-The first line of the csv is formmated as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
+The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
 ~~~~bash
 QUIZ NAME,YYYY-MM-DD,DESCRIPTION OF QUIZ
 ~~~~
