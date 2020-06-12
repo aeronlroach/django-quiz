@@ -28,7 +28,7 @@ Clone the repo with
 git clone https://github.com/aeronlroach/django-quiz.git
 ~~~~
 
-In your command line, run
+Now install the requirements. This command should ensure all the libraries you need for this project are installed.
 ~~~~bash
 pip install -r requirements.txt
 ~~~~
