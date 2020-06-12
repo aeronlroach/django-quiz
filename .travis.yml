@@ -9,7 +9,5 @@ language:python
   install:
     - pip install -r requirements.txt
     - pip install django==$DJANGO --quiet
-  before_script:
-    - sqlite3 -e 'create database test;' -u root
   script:
     - python manage.py test
