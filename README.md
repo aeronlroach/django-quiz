@@ -1,17 +1,108 @@
 # django-quiz
-A django evaluation framework. Use to create a concept evaluation tool
+This package is a Django application that provides users with the functionality to build quiz-format design tools.
 
-# Current Functionality
-To date, I have a limited build for the Django quiz framework. Currently, there are three main aspects to the quiz functionality.
-* An administrative view where a superuser:
-  * Can manually add each quiz, category, question, answer, answer weight, and feedback.
-  * Needs to manually set the relations for each category, question, answer, and answer feedback.
-  * Can set a quiz publish date. This will allow quizzes to be displayed only if the current date is on or after the “publish date.”
-* A quiz index view:
-  * Allows users to view a quiz and all the related categories, questions, and answers.
-  * Contains a “take quiz” link that redirects the user to take the quiz.
-    * The quiz pages through questions, meaning only one question is displayed at a time.
-    * If no question is selected, the question page reloads with an error – asking the user to select an answer.
-* After answering the final question, an “evaluation” page displays feedback for:
-  * Categories with scores below a threshold value. Currently this is just the raw score, not a normalized score.
-  * Answers in these categories with a weighting less than 1 (the highest score).
+## Table of Contents
+* [Requirements](#requirements)
+* [Getting Started](#getting-started)
+* [Making a Quiz](#making-a-quiz)
+  *  [CSV Formatting](#csv-formatting)
+* [Getting User Data](#getting-user-data)
+
+## Requirements
+* Python 3.7.4
+* Django 3.03
+* django-nested-admin
+* xhtml2pdf
+* jsonfield
+
+## Getting Started
+### NOTE: If you have not used Django before I recommend you read the "First Steps" section of the [Django documentation](https://docs.djangoproject.com/en/3.0/) before using this package.
+
+Clone the repo with
+~~~~bash
+git clone https://github.com/aeronlroach/django-quiz.git
+~~~~
+
+In your command line, run
+~~~~bash
+pip install -r requirements.txt
+~~~~
+
+NOTE: If you already have a Django project setup, you can skip this step
+Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.
+~~~~bash
+django-admin startproject project_name
+~~~~
+
+Then run
+~~~~bash
+python setup.py install
+~~~~
+
+Add `"quizzes"` and `"nested_admin"` to your INSTALLED_APPS in your project's `settings.py`
+
+    INSTALLED_APPS = (
+        ...
+        'quizzes',
+        'nested_admin',
+        ...
+    )
+    
+Add the following to your project's `urls.py`
+
+    from django.contrib import admin
+    from django.urls import path, include
+    from quizzes.views import quiz_upload
+
+    urlpatterns = [
+        path('quizzes/', include('quizzes.urls')),
+        path('admin/', admin.site.urls),
+        path('nested_admin/', include('nested_admin.urls')),
+        path('upload-csv/', quiz_upload, name="quiz_upload"),
+    ]
+
+Now make your migrations and migrate your data with `python manage.py makemigrations` and `python manage.py migrate`
+
+If you have not done so already, create a superuser account `python manage.py createsuperuser`and then check that the sever runs `python manage.py runserver`
+
+Visit 127.0.0.1:8000/admin to log-in and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit 127.0.0.1:8000/upload-csv to upload your quiz build csv. If you receive an error trying to access 127.0.0.1:8000/upload-csv, your admin session expired – so you will need to login again.
+
+## Making a Quiz
+It is recommended that you build a quiz using a csv file. While in-browser building is available, the relational linking must be completed manually. The csv method automates this process.
+
+### CSV Formatting
+The first line of the csv is formmated as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
+~~~~bash
+QUIZ NAME,YYYY-MM-DD,DESCRIPTION OF QUIZ
+~~~~
+
+The rest of the csv follows this format.
+~~~~bash
+QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 1 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 1
+QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 2 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 2
+QUIZ NAME,CATEGORY 1 NAME ,QUESTION 1 TEXT,ANSWER 3 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 3
+~~~~
+These three lines represent a category that has question with has three answer choices. Example CSV files can be found in the [Example CSV Files]() folder. This folder also contains a stock template of the following format:
+* Quiz
+  *  Category 1
+      *  Question 1
+          *  Answer 1 with Custom Feedback if Selected
+          *  Answer 2 with Custom Feedback if Selected
+          *  Answer 3 with Custom Feedback if Selected
+      *  Question 2
+          *  Answer 1 with Custom Feedback if Selected
+          *  Answer 2 with Custom Feedback if Selected
+          *  Answer 3 with Custom Feedback if Selected
+  *  Category 2
+      *  Question 1
+          *  Answer 1 with Custom Feedback if Selected
+          *  Answer 2 with Custom Feedback if Selected
+          *  Answer 3 with Custom Feedback if Selected
+      *  Question 2
+          *  Answer 1 with Custom Feedback if Selected
+          *  Answer 2 with Custom Feedback if Selected
+          *  Answer 3 with Custom Feedback if Selected
+
+
+## Getting User Data
+To export user data from the database, I using [DB Browser for SQlite](https://sqlitebrowser.org/).
