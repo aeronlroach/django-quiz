@@ -15,6 +15,9 @@ This package is a Django application that provides users with the functionality 
 * django-nested-admin
 * xhtml2pdf
 * jsonfield
+For testing only:
+* pytest 5.4.3
+* pytest-django
 
 ## Getting Started
 ### NOTE: If you have not used Django before I recommend you read the "First Steps" section of the [Django documentation](https://docs.djangoproject.com/en/3.0/) before using this package.
@@ -106,7 +109,7 @@ These three lines represent a category that has question with has three answer c
 
 
 ## Getting User Data
-To export user data from the database, I using [DB Browser for SQlite](https://sqlitebrowser.org/).
+To export user data from the database, I recommend using [DB Browser for SQlite](https://sqlitebrowser.org/) while I develop an in-browser export feature.
 
 ## License
 MIT License
