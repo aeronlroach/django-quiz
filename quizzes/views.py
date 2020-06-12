@@ -32,16 +32,6 @@ class QuizDetailView(generic.DetailView):
         return Quiz.objects.filter(pub_date__lte=timezone.now())
 
 
-class CategoryDetailView(generic.DetailView):
-    model = Category
-    template_name = 'quizzes/category_detail.html'
-
-
-class QuestionDetailView(generic.DetailView):
-    model = Question
-    template_name = 'quizzes/question_detail.html'
-
-
 @permission_required('admin.can_add_log_entry')
 def quiz_upload(request):
     """
@@ -73,7 +63,8 @@ def quiz_upload(request):
         quiz_obj, created = Quiz.objects.update_or_create(
             name=csv_header[0],
             pub_date=datetime.datetime.strptime(csv_header[1], '%Y-%m-%d %H:%M:%S.%f'),
-            description=csv_header[2]
+            description=csv_header[2],
+            active_quiz=False,
         )
     except IndexError:
         messages.error(request, error_msg)
@@ -343,7 +334,11 @@ def get_session_feedback(request, quiz_id):
                     feedback = answer.get_quiz_feedback().get()
                     innerdict.update({question_text: feedback.feedback_text})
                 if answer.answer_weight == 1:
-                    feedback = None
+                    feedback_check = answer.get_quiz_feedback().get()
+                    if feedback_check is "No Feedback":
+                        feedback = None
+                    else:
+                        feedback = feedback_check
                     innerdict.update({question_text: feedback})
         feedback_set.update({category_name: innerdict})
     request.session[quiz.session_feedback()] = feedback_set
@@ -378,7 +373,7 @@ def feedback(request, user_id):
     })
 
 
-@cache_page(60*15)
+@cache_page(60*60)
 def get_feedback_pdf(request, user_id):
     """
     This is a feedback page that is rendered as a pdf. Users will be able to access this from the feedback page.
