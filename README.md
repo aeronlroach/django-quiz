@@ -109,7 +109,7 @@ These three lines represent a category that has question with has three answer c
           *  Answer 3 with Custom Feedback if Selected
 
 ### Uploading a Quiz
-After following the csv formatting instructions in [Making a Quiz](#making-a-quiz) start the server with `python manage.py runserver`
+After following the csv formatting instructions above start the server with `python manage.py runserver`
 
 Login at `127.0.0.1:8000/admin` and navigate to `127.0.0.1:8000/upload-csv`
 
