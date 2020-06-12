@@ -13,7 +13,7 @@ from .views import create_user_response, save_user_feedback, feedback, get_feedb
 
 # Built following alongside Django Software Foundation's Writing your first Django app Tutorial
 # https://docs.djangoproject.com/en/3.0/intro/tutorial01/
-
+# Making a change to trigger travis
 
 def create_quiz(quiz_name, days, active_level):
     """
