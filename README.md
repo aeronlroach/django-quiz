@@ -15,6 +15,7 @@ This package is a Django application that provides users with the functionality 
 * django-nested-admin
 * xhtml2pdf
 * jsonfield
+
 For testing only:
 * pytest 5.4.3
 * pytest-django
