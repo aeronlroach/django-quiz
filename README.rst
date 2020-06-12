@@ -92,7 +92,7 @@ Now make your migrations and migrate your data with `python manage.py makemigrat
 
 If you have not done so already, create a superuser account `python manage.py createsuperuser`and then check that the sever runs `python manage.py runserver`
 
-Visit the local server at `127.0.0.1:8000/admin` to log-in and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit `127.0.0.1:8000/upload-csv` to upload your quiz build csv. If you receive an error trying to access `127.0.0.1:8000/upload-csv`, your admin session expired – so you will need to login again.
+Visit the local server at `127.0.0.1:8000/admin` to log-in and see the admin panel. After following the csv formatting instructions in `Making a Quiz`_, visit `127.0.0.1:8000/upload-csv` to upload your quiz build csv. If you receive an error trying to access `127.0.0.1:8000/upload-csv`, your admin session expired. You will need to login again.
 
 .. _Making_a_Quiz:
 
@@ -104,8 +104,8 @@ It is recommended that you build a quiz using a csv file. While in-browser build
 .. _CSV_Formatting:
 
 CSV Formatting
---------------
-The first line of the csv is formmated as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
+**************
+The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
 
     QUIZ NAME,YYYY-MM-DD,DESCRIPTION OF QUIZ
 
