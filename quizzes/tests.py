@@ -5,7 +5,7 @@ import datetime
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
-from django.test.client import RequestFactory
+from django.test import Client
 
 from .models import Quiz, Category, Question, Answer, Feedback, UserResponse
 from .views import create_user_response, save_user_feedback, feedback, get_feedback_pdf
@@ -128,7 +128,7 @@ class QuizIndexViewTests(TestCase):
 
     def test_two_awake(self):
         """
-        The questions index page may display multiple active quizzes.
+        The quizzes index page may display multiple active quizzes.
         """
         create_quiz(quiz_name="Awake quizzes 1.", days=-30, active_level=True)
         create_quiz(quiz_name="Awake quizzes 2.", days=-5, active_level=True)
@@ -136,6 +136,16 @@ class QuizIndexViewTests(TestCase):
         self.assertQuerysetEqual(
             response.context['latest_quiz_list'],
             ['<Quiz: Awake quizzes 2.>', '<Quiz: Awake quizzes 1.>']
+        )
+
+    def no_future_quiz(self):
+        """
+        Quizzes with pub-dates in future do not show, even if active
+        """
+        create_quiz(quiz_name="Awake quizzes 1.", days=3, active_level=True)
+        response = self.client.get(reverse('quizzes:index'))
+        self.assertQuerysetEqual(
+            response.context['latest_quiz_list'],[]
         )
 
 
@@ -163,7 +173,6 @@ class TakingQuizVTests(TestCase):
     def test_new_quiz(self):
         """
         The start_new_quiz function should redirect to take_quiz when run.
-        :return:
         """
         quiz = create_quiz(quiz_name="test quiz", days=-5, active_level=True)
         url = reverse('quizzes:start_new_quiz', args=(quiz[0].id, quiz[1].id))
@@ -172,15 +181,30 @@ class TakingQuizVTests(TestCase):
 
     def test_take_quiz(self):
         """
+        take_quiz should have the data for name of a quiz
         """
         quiz = create_quiz(quiz_name="test quiz", days=-5, active_level=True)
         url = reverse('quizzes:take_quiz', args=(quiz[0].id, quiz[1].id, quiz[2].id))
         response = self.client.get(url)
         self.assertContains(response, quiz[0].name)
 
+    def test_select_answer(self):
+        """
+        A post request on take_quiz should include the answer id, and should return a 200 code
+        """
+        c = Client()
+        quiz = create_quiz(quiz_name="test quiz", days=-5, active_level=True)
+        url = reverse('quizzes:take_quiz', args=(quiz[0].id, quiz[1].id, quiz[2].id))
+        post = c.post(url, {'question': quiz[2], 'answer': quiz[3]})
+        self.assertContains(post, quiz[3].id)
+        self.assertEqual(post.status_code, 200)
+
 
 class CreatingUserResponses(TestCase):
     def test_create_new_response(self):
+        """
+        A newly created user response should have a parent_quiz that matches quiz the user is taking
+        """
         quiz = create_quiz(quiz_name="test quiz", days=-5, active_level=True)[0]
         responseid = create_user_response(quiz.id)
         userresponse = UserResponse.objects.filter(response_id=responseid)[0]
