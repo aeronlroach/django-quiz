@@ -33,7 +33,9 @@ In your command line, run
 pip install -r requirements.txt
 ~~~~
 
-NOTE: If you already have a Django project setup, you can skip this step
+
+**NOTE: If you already have a Django project setup, you can skip this step**
+
 Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.
 ~~~~bash
 django-admin startproject project_name
