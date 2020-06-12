@@ -1,0 +1,14 @@
+language:python
+  python:
+    - 3.7.4
+  services:
+    - mysql
+  env:
+    -DJANGO=3.0.3
+  install:
+    - pip install -r requirements.txt
+    - pip install django==$DJANGO --quiet
+  before_script:
+    - mysql -e 'create database test;' -u root
+  script:
+    - python manage.py test
