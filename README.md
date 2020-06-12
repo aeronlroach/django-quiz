@@ -6,6 +6,7 @@ This package is a Django application that provides users with the functionality 
 * [Getting Started](#getting-started)
 * [Making a Quiz](#making-a-quiz)
   *  [CSV Formatting](#csv-formatting)
+  *  [Uploading a Quiz](#uploading-a-quiz)
 * [Getting User Data](#getting-user-data)
 * [License](#liscense)
 
@@ -69,7 +70,7 @@ Now make your migrations and migrate your data with `python manage.py makemigrat
 
 If you have not done so already, create a superuser account `python manage.py createsuperuser`and then check that the sever runs `python manage.py runserver`
 
-Visit the local server at `127.0.0.1:8000/admin` to log-in and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit `127.0.0.1:8000/upload-csv` to upload your quiz build csv. If you receive an error trying to access `127.0.0.1:8000/upload-csv`, your admin session expired – so you will need to login again.
+Visit the local server at `127.0.0.1:8000/admin` to login and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit `127.0.0.1:8000/upload-csv` to upload your quiz build csv. This process is discussed in detail [below](#uploading-a-quiz). If you receive an error trying to access `127.0.0.1:8000/upload-csv`, your admin session expired – so you will need to login again.
 
 ## Making a Quiz
 It is recommended that you build a quiz using a csv file. While in-browser building is available, the relational linking must be completed manually. The csv method automates this process.
@@ -107,6 +108,16 @@ These three lines represent a category that has question with has three answer c
           *  Answer 2 with Custom Feedback if Selected
           *  Answer 3 with Custom Feedback if Selected
 
+### Uploading a Quiz
+After following the csv formatting instructions in [Making a Quiz](#making-a-quiz) start the server with `python manage.py runserver`
+
+Login at `127.0.0.1:8000/admin` and navigate to `127.0.0.1:8000/upload-csv`
+
+From here, select `Browse...` and navigate to the directory where your quiz csv is stored, and select the csv.
+
+Now pres `Upload` and the page should refresh, if now error messages are displayed - you have successfully built a quiz.
+
+Navigating to `127.0.0.1:8000/quizzes` you should see the Title of the quiz on the quiz index. Your quiz is now stored in the database. Click `Info` to look at the Quiz detail view, or `Take Quiz` to start a quiz session
 
 ## Getting User Data
 To export user data from the database, I recommend using [DB Browser for SQlite](https://sqlitebrowser.org/) while I develop an in-browser export feature.
