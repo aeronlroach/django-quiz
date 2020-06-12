@@ -65,7 +65,7 @@ Now make your migrations and migrate your data with `python manage.py makemigrat
 
 If you have not done so already, create a superuser account `python manage.py createsuperuser`and then check that the sever runs `python manage.py runserver`
 
-Visit 127.0.0.1:8000/admin to log-in and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit 127.0.0.1:8000/upload-csv to upload your quiz build csv. If you receive an error trying to access 127.0.0.1:8000/upload-csv, your admin session expired – so you will need to login again.
+Visit the local server at `127.0.0.1:8000/admin` to log-in and see the admin panel. After following the csv formatting instructions in [Making a Quiz](#making-a-quiz), visit `127.0.0.1:8000/upload-csv` to upload your quiz build csv. If you receive an error trying to access `127.0.0.1:8000/upload-csv`, your admin session expired – so you will need to login again.
 
 ## Making a Quiz
 It is recommended that you build a quiz using a csv file. While in-browser building is available, the relational linking must be completed manually. The csv method automates this process.
