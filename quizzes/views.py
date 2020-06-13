@@ -105,7 +105,7 @@ def quiz_upload(request):
                 answer_selected=False,
                 answer_weight=row[4]
             )
-            answer = Answer.objects.filter(answer_text=row[3]).get()
+            answer = Answer.objects.filter(answer_text=row[3], parent_question=question).get()
             feedback_obj, created = Feedback.objects.update_or_create(
                 parent_quiz=quiz,
                 parent_category=category,
