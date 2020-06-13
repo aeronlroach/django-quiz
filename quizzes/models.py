@@ -18,7 +18,7 @@ class Quiz(models.Model):
 
     # Question content
     name = models.CharField(_("Quiz Name"), max_length=200, blank=True, null=True)
-    pub_date = models.DateTimeField('date created', default=datetime.datetime.now())
+    pub_date = models.DateTimeField('date created')
     description = models.CharField(_("Quiz Description"), max_length=200, blank=True, null=True)
     active_quiz = models.BooleanField("Active", default=False)
 
