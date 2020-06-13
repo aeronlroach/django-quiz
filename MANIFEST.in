@@ -2,3 +2,4 @@ include LICENSE
 include README.rst
 recursive-include quizzes/static *
 recursive-include quizzes/templates *
+recursive-include Example CSV Files *
