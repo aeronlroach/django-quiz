@@ -38,19 +38,19 @@ django-admin startproject project_name
 ~~~~
 
 ### With Django Installed
-Navigate to you Django prohect directory and clone the repo with
+Navigate to your main Django project directory and clone the repo with
 ~~~~bash
 git clone https://github.com/aeronlroach/django-quiz.git
 ~~~~
 
-Now navigate yo teh django-quiz folder and install the requirements. This command should ensure all the libraries you need for this project are installed.
+Now navigate to the django-quiz folder and install the requirements. This command should ensure all the libraries you need for this project are installed.
 ~~~~bash
 pip install -r requirements.txt
 ~~~~
 
-Then run
+Then
 ~~~~bash
-python -m pip install --user django-quiz/dist/django-quiz-.1.tar.gz
+python setup.py install
 ~~~~
 
 Add `"quizzes"` and `"nested_admin"` to your INSTALLED_APPS in your project's `settings.py`
