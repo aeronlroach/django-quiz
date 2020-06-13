@@ -34,7 +34,7 @@ For testing only:
 Getting Started
 ---------------
 
-NOTE: If you have not used Django before I recommend you read the "First Steps" section of the `Django documentation <https://docs.djangoproject.com/en/3.0/>`_ before using this package.
+**NOTE: If you have not used Django before I recommend you read the "First Steps" section of the `Django documentation <https://docs.djangoproject.com/en/3.0/>`_ before using this package.**
 
 Clone the repo with:
 
@@ -46,8 +46,7 @@ In your command line, run
     pip install -r requirements.txt
 
 
-NOTE: If you already have a Django project setup, you can skip this step
-Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.
+Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.**NOTE: If you already have a Django project setup, you can skip this step**
 
     django-admin startproject project_name
 
@@ -106,7 +105,7 @@ It is recommended that you build a quiz using a csv file. While in-browser build
 
 CSV Formatting
 **************
-The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz. This line will establish the Quiz model.
+The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz **NOTE: As this is a csv, you must put you description in quotation marks if you are going to use commas in the description.** This line will establish the Quiz model. Replace `YYYY-MM-DD` with the date you are creating the quiz - follow the `YYYY-MM-DD` format.
 
     QUIZ NAME,YYYY-MM-DD,DESCRIPTION OF QUIZ
 
