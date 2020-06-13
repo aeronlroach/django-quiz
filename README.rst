@@ -34,7 +34,7 @@ For testing only:
 Getting Started
 ---------------
 
-**NOTE: If you have not used Django before I recommend you read the "First Steps" section of the `Django documentation <https://docs.djangoproject.com/en/3.0/>`_ before using this package.**
+**NOTE: If you have not used Django before I recommend you read the "First Steps" section of the** `Django documentation <https://docs.djangoproject.com/en/3.0/>`_ **before using this package.**
 
 Clone the repo with:
 
