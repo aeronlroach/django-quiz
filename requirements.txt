@@ -4,3 +4,4 @@ pytest-django
 django-nested_admin
 xhtml2pdf
 jsonfield
+django-model-utils
