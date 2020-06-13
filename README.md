@@ -87,7 +87,7 @@ QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 1 TEXT,ANSWER WEIGHT,FEEDBACK T
 QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 2 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 2
 QUIZ NAME,CATEGORY 1 NAME ,QUESTION 1 TEXT,ANSWER 3 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 3
 ~~~~
-These three lines represent a category that has question with has three answer choices. Example CSV files can be found in the [Example CSV Files]() folder. **NOTE: As stated before, if you use commas the text for questions/answers/feedback, you must surround the text in qutation marks** This folder also contains a stock template of the following format:
+These three lines represent a category that has question with has three answer choices. Example CSV files can be found in the [Example CSV Files]() folder. **NOTE: As stated before, if you use commas for the text of questions/answers/feedback, you must surround the text in qutation marks** This folder also contains a stock template of the following format:
 * Quiz
   *  Category 1
       *  Question 1
