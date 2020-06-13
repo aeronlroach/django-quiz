@@ -76,7 +76,7 @@ Visit the local server at `127.0.0.1:8000/admin` to login and see the admin pane
 It is recommended that you build a quiz using a csv file. While in-browser building is available, the relational linking must be completed manually. The csv method automates this process.
 
 ### CSV Formatting
-The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz **NOTE: As this is a csv, you must put you description in quotation marks if you are going to use commas in the description.** This line will establish the Quiz model. Replace `YYYY-MM-DD` with the date you are creating the quiz - follow the `YYYY-MM-DD` format.
+The first line of the csv is formatted as follows. Replace `QUIZ NAME` with the name of your quiz, the date field with the current date, and `DESCRIPTION OF QUIZ` with brief description of your quiz **NOTE: As this is a csv, you must surround your description with the quote character | Example: |This is my quiz, it is a test|** This line will establish the Quiz model. Replace `YYYY-MM-DD` with the date you are creating the quiz - follow the `YYYY-MM-DD` format.
 ~~~~bash
 QUIZ NAME,YYYY-MM-DD,DESCRIPTION OF QUIZ
 ~~~~
@@ -87,7 +87,7 @@ QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 1 TEXT,ANSWER WEIGHT,FEEDBACK T
 QUIZ NAME,CATEGORY 1 NAME,QUESTION 1 TEXT,ANSWER 2 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 2
 QUIZ NAME,CATEGORY 1 NAME ,QUESTION 1 TEXT,ANSWER 3 TEXT,ANSWER WEIGHT,FEEDBACK TEXT FOR ANSWER 3
 ~~~~
-These three lines represent a category that has question with has three answer choices. Example CSV files can be found in the [Example CSV Files]() folder. **NOTE: As stated before, if you use commas for the text of questions/answers/feedback, you must surround the text in qutation marks** This folder also contains a stock template of the following format:
+These three lines represent a category that has question with has three answer choices. Example CSV files can be found in the [Example CSV Files]() folder. **NOTE: As stated before, if you use commas for the text of questions/answers/feedback, you must surround the text with the quote character |** This folder also contains a stock template of the following format:
 * Quiz
   *  Category 1
       *  Question 1
