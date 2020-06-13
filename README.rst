@@ -7,6 +7,9 @@ Table of Contents
 -----------------
 * Requirements_
 * `Getting Started`_
+
+  *  `Without Django Installed`_
+  *  `With Django Installed`_
 * `Making a Quiz`_
 
   *  `CSV Formatting`_
@@ -21,9 +24,11 @@ Requirements
 
 * Python 3.7.4
 * Django 3.03
+* django-model-utils
 * django-nested-admin
 * xhtml2pdf
 * jsonfield
+
 
 For testing only:
 * pytest 5.4.3
@@ -36,19 +41,36 @@ Getting Started
 
 **NOTE: If you have not used Django before I recommend you read the "First Steps" section of the** `Django documentation <https://docs.djangoproject.com/en/3.0/>`_ **before using this package.**
 
-Clone the repo with:
+.. `Without Django Installed`
+
+Without Django Installed
+************************
+
+First you need to install Django
+
+    python -m pip install Django
+
+
+Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.
+
+    django-admin startproject project_name
+
+Procceed to `With Django Installed`
+
+.. `With Django Installed`
+
+With Django Installed
+*********************
+
+Now navigate to the django-quiz folder and install the requirements. This command should ensure all the libraries you need for this project are installed.
 
     git clone https://github.com/aeronlroach/django-quiz.git
 
 
-In your command line, run
+Then
 
     pip install -r requirements.txt
-
-
-Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project.**NOTE: If you already have a Django project setup, you can skip this step**
-
-    django-admin startproject project_name
+    
 
 Then run
 
