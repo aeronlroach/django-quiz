@@ -115,7 +115,7 @@ Login at `127.0.0.1:8000/admin` and navigate to `127.0.0.1:8000/upload-csv`
 
 From here, select `Browse...` and navigate to the directory where your quiz csv is stored, and select the csv.
 
-Now press `Upload` and the page should refresh, if now error messages are displayed - you have successfully built a quiz.
+Now press `Upload` and the page should refresh, if no error messages display - you have successfully built a quiz.
 
 Navigating to `127.0.0.1:8000/quizzes` you should see the Title of the quiz on the quiz index. Your quiz is now stored in the database. Click `Info` to look at the Quiz detail view, or `Take Quiz` to start a quiz session
 
