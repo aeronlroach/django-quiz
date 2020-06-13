@@ -4,6 +4,8 @@ This package is a Django application that provides users with the functionality 
 ## Table of Contents
 * [Requirements](#requirements)
 * [Getting Started](#getting-started)
+  *  [Without Django Installed](#without-django-installed)
+  *  [With Django Installed](#with-django-installed)
 * [Making a Quiz](#making-a-quiz)
   *  [CSV Formatting](#csv-formatting)
   *  [Uploading a Quiz](#uploading-a-quiz)
@@ -24,24 +26,31 @@ For testing only:
 ## Getting Started
 ### NOTE: If you have not used Django before I recommend you read the "First Steps" section of the [Django documentation](https://docs.djangoproject.com/en/3.0/) before using this package.
 
-Clone the repo with
-~~~~bash
-git clone https://github.com/aeronlroach/django-quiz.git
-~~~~
+### Without Django Installed
+First you need to install Django
+~~~bash
+python -m pip install Django
+~~~
 
-Now install the requirements. This command should ensure all the libraries you need for this project are installed.
-~~~~bash
-pip install -r requirements.txt
-~~~~
-
-Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project. **NOTE: If already have a set up Django project, you can skip this step**
+Now that Django is installed, you can start your Django project. Replace `project_name` with the name of your project. 
 ~~~~bash
 django-admin startproject project_name
 ~~~~
 
+### With Django Installed
+Navigate to you Django prohect directory and clone the repo with
+~~~~bash
+git clone https://github.com/aeronlroach/django-quiz.git
+~~~~
+
+Now navigate yo teh django-quiz folder and install the requirements. This command should ensure all the libraries you need for this project are installed.
+~~~~bash
+pip install -r requirements.txt
+~~~~
+
 Then run
 ~~~~bash
-python setup.py install
+python -m pip install --user django-quiz/dist/django-quiz-.1.tar.gz
 ~~~~
 
 Add `"quizzes"` and `"nested_admin"` to your INSTALLED_APPS in your project's `settings.py`
