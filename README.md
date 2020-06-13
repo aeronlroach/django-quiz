@@ -15,6 +15,7 @@ This package is a Django application that provides users with the functionality 
 ## Requirements
 * Python 3.7.4
 * Django 3.03
+* django-model-utils
 * django-nested-admin
 * xhtml2pdf
 * jsonfield
