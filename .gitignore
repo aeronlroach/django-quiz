@@ -130,4 +130,4 @@ dmypy.json
 
 # Local IDE files
 .idea/
-*.csv
+/Test csv
