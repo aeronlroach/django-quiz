@@ -13,6 +13,7 @@ class AnswerInline(nested_admin.NestedTabularInline):
     """
     model = Answer
     exclude = ['parent_quiz', 'parent_category', 'answer_selected']
+    extra = 0
 
 
 class QuestionInline(nested_admin.NestedTabularInline):
@@ -26,6 +27,7 @@ class QuestionInline(nested_admin.NestedTabularInline):
     model = Question
     exclude = ['parent_quiz', 'parent_category']
     inlines = [AnswerInline,]
+    extra = 0
 
 
 class CategoryInline(nested_admin.NestedTabularInline):
@@ -39,6 +41,7 @@ class CategoryInline(nested_admin.NestedTabularInline):
     model = Category
     exclude = ['order', 'score']
     inlines = [QuestionInline,]
+    extra = 0
 
 
 class QuizAdmin(nested_admin.NestedModelAdmin):
