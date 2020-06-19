@@ -9,6 +9,7 @@ from django.views import generic
 from django.utils import timezone
 from .models import Quiz, Category, Question, Answer, Feedback, UserResponse
 from .render import Render
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Built following alongside Django Software Foundation's Writing your first Django app Tutorial
@@ -35,13 +36,14 @@ class QuizDetailView(generic.DetailView):
 @permission_required('admin.can_add_log_entry')
 def quiz_upload(request):
     """
-    This is a function that lets the superuser upload a CSV to create a new quiz.
+    This is a function that lets the superuser upload a CSV to create or edit a quiz.
     """
     template = "quizzes/quiz_upload.html"
     prompt = {
-        'header order': 'Order of the CSV header should be Quiz name, pub_date, description',
+        'headerorder': 'Order of the CSV header should be Quiz name, pub_date, description',
         'order': 'Order for rest of CSV should be Quiz name, '
-                 'category_name, question_text, answer_text, answer_weight, feedback_text'
+                 'category_name, question_text, answer_text, answer_weight, feedback_text',
+        'feedbacknote': 'If you do not plan on including feedback for an answer put No Feedback for feedback_text',
     }
     error_msg = 'This is csv file is not formatted correctly, please check the file and try again'
 
@@ -52,7 +54,7 @@ def quiz_upload(request):
 
     # Check if the submitted file is .csv format
     if not csv_file.name.endswith('.csv'):
-        messages.error(request, 'This is not a csv file')
+        messages.error(request, template, 'This is not a csv file')
 
     quiz_contents = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(quiz_contents)
@@ -76,52 +78,127 @@ def quiz_upload(request):
                 description=csv_header[2],
                 active_quiz=True,
             )
+
+    # If there is an Index Error, the created object is deleted and the page is reloaded with the error message
     except IndexError:
+        try:
+            Quiz.objects.filter(quiz_name=quiz_obj.quiz_name).delete()
+        except ObjectDoesNotExist:
+            pass
+        render(request, template, prompt)
         messages.error(request, error_msg)
 
-    # Now create the rest of the Quiz elements
+    # Creating sets to check old upload vs new upload
+    quiz = quiz_obj
+    if created is False:
+        categories = quiz_obj.category_set.all()
+        questions = quiz_obj.question_set.all()
+        answers = quiz_obj.answer_set.all()
+        feedback_set = quiz_obj.feedback_set.all()
+        quiz_c_old = set(c.category_name for c in categories)
+        quiz_c_new = set()
+        quiz_q_old = set(q.question_text for q in questions)
+        quiz_q_new = set()
+        quiz_a_old = set((a.answer_text, a.answer_weight) for a in answers)
+        quiz_a_new = set()
+        quiz_f_old = set(f.feedback_text for f in feedback_set)
+        quiz_f_new = set()
+
+    # Now create the rest of the Quiz elements, u
     for row in csv.reader(io_string, delimiter=',', quotechar="|"):
         try:
-            quiz = Quiz.objects.filter(name=row[0]).get()
             category_obj, created = Category.objects.update_or_create(
-                parent_quiz=quiz,
+                parent_quiz=quiz_obj,
                 category_name=row[1],
                 order=0,
                 description='',
                 score=0
             )
-            category = Category.objects.filter(category_name=row[1]).get()
+            quiz_c_new.add(category_obj.category_name)
             question_obj, created = Question.objects.update_or_create(
-                parent_quiz=quiz,
-                parent_category=category,
+                parent_quiz=quiz_obj,
+                parent_category=category_obj,
                 question_text=row[2]
             )
-            question = Question.objects.filter(question_text=row[2]).get()
+            quiz_q_new.add(question_obj.question_text)
             answer_obj, created = Answer.objects.update_or_create(
-                parent_quiz=quiz,
-                parent_category=category,
-                parent_question=question,
+                parent_quiz=quiz_obj,
+                parent_category=category_obj,
+                parent_question=question_obj,
                 answer_text=row[3],
                 answer_selected=False,
                 answer_weight=row[4]
             )
-            answer = Answer.objects.filter(answer_text=row[3], parent_question=question).get()
+            quiz_a_new.add((answer_obj.answer_text, answer_obj.answer_weight))
             feedback_obj, created = Feedback.objects.update_or_create(
-                parent_quiz=quiz,
-                parent_category=category,
-                parent_question=question,
-                parent_answer=answer,
+                parent_quiz=quiz_obj,
+                parent_category=category_obj,
+                parent_question=question_obj,
+                parent_answer=answer_obj,
                 feedback_type='',
                 feedback_text=row[5]
             )
-        except IndexError:
+            quiz_f_new.add(feedback_obj.feedback_text)
+
+        # If there is an error in the format of the CSV, Error raised.
+        # Anything that was created relating to the quiz is deleted and the page is reloaded with an error message
+        except IndexError or ValueError:
+            try:
+                Feedback.objects.filter(parent_quiz=quiz_obj).delete()
+                Answer.objects.filter(parent_quiz=quiz_obj).delete()
+                Question.objects.filter(parent_quiz=quiz_obj).delete()
+                Category.objects.filter(parent_quiz=quiz_obj).delete()
+                Quiz.objects.filter(quiz_name=quiz_obj.quiz_name).delete()
+            except ObjectDoesNotExist:
+                pass
+            render(request, template, prompt)
             messages.error(request, error_msg)
+
+    # Checking what was removed between uploads
+    removed_c = quiz_c_old.difference(quiz_c_new)
+    removed_q = quiz_q_old.difference(quiz_q_new)
+    removed_a = quiz_a_old.difference(quiz_a_new)
+    removed_f = quiz_f_old.difference(quiz_f_new)
+
+    # Removing anything that was not in the new csv
+    if removed_c:
+        for i in removed_c:
+            category = Category.objects.filter(category_name=str(i)).get()
+            Feedback.objects.filter(parent_category=category).delete()
+            Answer.objects.filter(parent_category=category).delete()
+            Question.objects.filter(parent_category=category).delete()
+            Category.objects.filter(category_name=str(i)).delete()
+    if removed_q:
+        for i in removed_q:
+            try:
+                question = Question.objects.filter(question_text=str(i)).get()
+                Feedback.objects.filter(parent_question=question).delete()
+                Answer.objects.filter(parent_question=question).delete()
+                Question.objects.filter(question_text=str(i)).delete()
+            except ObjectDoesNotExist:
+                pass
+    if removed_a:
+        for i in removed_a:
+            try:
+                answer = Answer.objects.filter(answer_text=str(i[0]), answer_weight=i[1]).get()
+                Feedback.objects.filter(parent_answer=answer).delete()
+                Answer.objects.filter(answer_text=str(i[0]), answer_weight=i[1]).delete()
+            except ObjectDoesNotExist:
+                pass
+    if removed_f:
+        for i in removed_f:
+            try:
+                Feedback.objects.filter(feedback_text=str(i)).delete()
+            except ObjectDoesNotExist:
+                pass
 
     context = {
         "success": 'The quiz was uploaded successfully',
-        'header order': 'Order of the CSV header should be Quiz name, pub_date, description',
+        'headerorder': 'Order of the CSV header should be Quiz name, pub_date, description',
         'order': 'Order for rest of CSV should be Quiz name, '
-                 'category_name, question_text, answer_text, answer_weight, feedback_text'}
+                 'category_name, question_text, answer_text, answer_weight, feedback_text',
+        'feedbacknote': 'If you do not plan on including feedback for an answer put No Feedback for feedback_text',
+    }
 
     return render(request, template, context)
 
