@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<H3>Upload CSV</H3>
 {% if messages %}
-    {% for messages in messages %}
-        <div>
-            <strong>{{message|safe}}</strong>
-        </div>
-    {% endfor %}
+    <div>
+        <strong>{{messages}}</strong>
+    </div>
 {% else %}
-{{headerorder}}<br>
-{{order}}<br><br>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label>Upload a file</label>
-    <input type="file" name="file">
-    <p>Only accepts CSV files</p>
-    <button type="submit">Upload</button>
-</form>
+<div>
+    <p>{{success}}</p>
+    <p><strong>CSV Formatting:</strong></p>
+    <ul>
+        <p>{{headerorder}}</p>
+        <p>{{order}}</p>
+        <p><strong>Note: </strong> {{feedbacknote}}</p>
+    </ul>
+</div>
+<div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>Upload a file</label>
+        <input type="file" name="file">
+        <p>Only accepts CSV files</p>
+        <button type="submit">Upload</button>
+    </form>
+</div>
 {% endif %}
 
 </html>
