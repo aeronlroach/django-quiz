@@ -10,6 +10,7 @@ This package is a Django application that provides users with the functionality 
   *  [CSV Formatting](#csv-formatting)
   *  [Uploading a Quiz](#uploading-a-quiz)
 * [Getting User Data](#getting-user-data)
+* [Deploying tp the Web](#deploying-to-the-web)
 * [License](#liscense)
 
 ## Requirements
@@ -132,7 +133,7 @@ Navigating to `127.0.0.1:8000/quizzes` you should see the Title of the quiz on t
 ## Getting User Data
 To export user data from the database, I recommend using [DB Browser for SQlite](https://sqlitebrowser.org/) while I develop an in-browser export feature.
 
-## Deploying to the web
+## Deploying to the Web
 To deploy online, follow the Mozilla Corporation's [deployment tutorial](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Deployment).
 
 ## License
