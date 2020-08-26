@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from model_utils.managers import InheritanceManager
 from jsonfield import JSONField
-from random import choice
 
 
 # Structure Idea comes from:
@@ -162,16 +161,7 @@ class Feedback(models.Model):
 class UserResponse(models.Model):
     """"""
     parent_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, blank=True, null=True)
-
-    def generate_new_id(self, quiz_id):
-        quiz = Quiz.objects.filter(name=self.parent_quiz.name)
-        range_low = quiz_id*1000
-        range_high = range_low + 999
-        ids = set(range(range_low, range_high))
-        used_ids = set(UserResponse.objects.values_list('response_id', flat=True))
-        return choice(list(ids - used_ids))
-
-    response_id = models.IntegerField(default=generate_new_id, blank=True, null=True)
+    response_id = models.IntegerField(blank=True, null=True)
     response_data = JSONField(null=True)
 
     def __str__(self):
