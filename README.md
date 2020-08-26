@@ -10,7 +10,7 @@ This package is a Django application that provides users with the functionality 
   *  [CSV Formatting](#csv-formatting)
   *  [Uploading a Quiz](#uploading-a-quiz)
 * [Getting User Data](#getting-user-data)
-* [Deploying tp the Web](#deploying-to-the-web)
+* [Deploying to the Web](#deploying-to-the-web)
 * [License](#liscense)
 
 ## Requirements
