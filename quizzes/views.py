@@ -10,6 +10,7 @@ from django.utils import timezone
 from .models import Quiz, Category, Question, Answer, Feedback, UserResponse
 from .render import Render
 from django.core.exceptions import ObjectDoesNotExist
+from random import choice
 
 
 # Built following alongside Django Software Foundation's Writing your first Django app Tutorial
@@ -65,14 +66,14 @@ def quiz_upload(request):
         # Added an extra layer of error catching, this will try to enter the time in the full datetime format
         # if not in datetime %Y-%m-%d %H:%M:%S.%f', then it will just try the date given
         try:
-            quiz_obj, created = Quiz.objects.update_or_create(
+            quiz_obj, quiz_created = Quiz.objects.update_or_create(
                 name=csv_header[0],
                 pub_date=datetime.datetime.strptime(csv_header[1], '%Y-%m-%d %H:%M:%S.%f'),
                 description=csv_header[2],
                 active_quiz=True,
             )
         except ValueError:
-            quiz_obj, created = Quiz.objects.update_or_create(
+            quiz_obj, quiz_created = Quiz.objects.update_or_create(
                 name=csv_header[0],
                 pub_date=csv_header[1],
                 description=csv_header[2],
@@ -89,8 +90,7 @@ def quiz_upload(request):
         messages.error(request, error_msg)
 
     # Creating sets to check old upload vs new upload
-    quiz = quiz_obj
-    if created is False:
+    if quiz_created is False:
         categories = quiz_obj.category_set.all()
         questions = quiz_obj.question_set.all()
         answers = quiz_obj.answer_set.all()
@@ -114,13 +114,11 @@ def quiz_upload(request):
                 description='',
                 score=0
             )
-            quiz_c_new.add(category_obj.category_name)
             question_obj, created = Question.objects.update_or_create(
                 parent_quiz=quiz_obj,
                 parent_category=category_obj,
                 question_text=row[2]
             )
-            quiz_q_new.add(question_obj.question_text)
             answer_obj, created = Answer.objects.update_or_create(
                 parent_quiz=quiz_obj,
                 parent_category=category_obj,
@@ -129,7 +127,6 @@ def quiz_upload(request):
                 answer_selected=False,
                 answer_weight=row[4]
             )
-            quiz_a_new.add((answer_obj.answer_text, answer_obj.answer_weight))
             feedback_obj, created = Feedback.objects.update_or_create(
                 parent_quiz=quiz_obj,
                 parent_category=category_obj,
@@ -138,7 +135,11 @@ def quiz_upload(request):
                 feedback_type='',
                 feedback_text=row[5]
             )
-            quiz_f_new.add(feedback_obj.feedback_text)
+            if quiz_created is False:
+                quiz_c_new.add(category_obj.category_name)
+                quiz_q_new.add(question_obj.question_text)
+                quiz_a_new.add((answer_obj.answer_text, answer_obj.answer_weight))
+                quiz_f_new.add(feedback_obj.feedback_text)
 
         # If there is an error in the format of the CSV, Error raised.
         # Anything that was created relating to the quiz is deleted and the page is reloaded with an error message
@@ -155,42 +156,43 @@ def quiz_upload(request):
             messages.error(request, error_msg)
 
     # Checking what was removed between uploads
-    removed_c = quiz_c_old.difference(quiz_c_new)
-    removed_q = quiz_q_old.difference(quiz_q_new)
-    removed_a = quiz_a_old.difference(quiz_a_new)
-    removed_f = quiz_f_old.difference(quiz_f_new)
+    if quiz_created is False:
+        removed_c = quiz_c_old.difference(quiz_c_new)
+        removed_q = quiz_q_old.difference(quiz_q_new)
+        removed_a = quiz_a_old.difference(quiz_a_new)
+        removed_f = quiz_f_old.difference(quiz_f_new)
 
-    # Removing anything that was not in the new csv
-    if removed_c:
-        for i in removed_c:
-            category = Category.objects.filter(category_name=str(i)).get()
-            Feedback.objects.filter(parent_category=category).delete()
-            Answer.objects.filter(parent_category=category).delete()
-            Question.objects.filter(parent_category=category).delete()
-            Category.objects.filter(category_name=str(i)).delete()
-    if removed_q:
-        for i in removed_q:
-            try:
-                question = Question.objects.filter(question_text=str(i)).get()
-                Feedback.objects.filter(parent_question=question).delete()
-                Answer.objects.filter(parent_question=question).delete()
-                Question.objects.filter(question_text=str(i)).delete()
-            except ObjectDoesNotExist:
-                pass
-    if removed_a:
-        for i in removed_a:
-            try:
-                answer = Answer.objects.filter(answer_text=str(i[0]), answer_weight=i[1]).get()
-                Feedback.objects.filter(parent_answer=answer).delete()
-                Answer.objects.filter(answer_text=str(i[0]), answer_weight=i[1]).delete()
-            except ObjectDoesNotExist:
-                pass
-    if removed_f:
-        for i in removed_f:
-            try:
-                Feedback.objects.filter(feedback_text=str(i)).delete()
-            except ObjectDoesNotExist:
-                pass
+        # Removing anything that was not in the new csv
+        if removed_c:
+            for i in removed_c:
+                category = Category.objects.filter(parent_quiz=quiz_obj, category_name=str(i)).get()
+                Feedback.objects.filter(parent_quiz=quiz_obj, parent_category=category).delete()
+                Answer.objects.filter(parent_quiz=quiz_obj, parent_category=category).delete()
+                Question.objects.filter(parent_quiz=quiz_obj, parent_category=category).delete()
+                Category.objects.filter(parent_quiz=quiz_obj, category_name=str(i)).delete()
+        if removed_q:
+            for i in removed_q:
+                try:
+                    question = Question.objects.filter(parent_quiz=quiz_obj, question_text=str(i)).get()
+                    Feedback.objects.filter(parent_quiz=quiz_obj, parent_question=question).delete()
+                    Answer.objects.filter(parent_quiz=quiz_obj, parent_question=question).delete()
+                    Question.objects.filter(parent_quiz=quiz_obj, question_text=str(i)).delete()
+                except ObjectDoesNotExist:
+                    pass
+        if removed_a:
+            for i in removed_a:
+                try:
+                    answer = Answer.objects.filter(parent_quiz=quiz_obj, answer_text=str(i[0]), answer_weight=i[1]).get()
+                    Feedback.objects.filter(parent_quiz=quiz_obj, parent_answer=answer).delete()
+                    Answer.objects.filter(parent_quiz=quiz_obj, answer_text=str(i[0]), answer_weight=i[1]).delete()
+                except ObjectDoesNotExist:
+                    pass
+        if removed_f:
+            for i in removed_f:
+                try:
+                    Feedback.objects.filter(parent_quiz=quiz_obj, feedback_text=str(i)).delete()
+                except ObjectDoesNotExist:
+                    pass
 
     context = {
         "success": 'The quiz was uploaded successfully',
@@ -201,6 +203,14 @@ def quiz_upload(request):
     }
 
     return render(request, template, context)
+
+
+def generate_new_id(quiz_id):
+    range_low = quiz_id*1000
+    range_high = range_low + 999
+    ids = set(range(range_low, range_high))
+    used_ids = set(UserResponse.objects.values_list('response_id', flat=True))
+    return choice(list(ids - used_ids))
 
 
 def create_user_response(quiz_id, *args):
@@ -222,13 +232,8 @@ def create_user_response(quiz_id, *args):
     else:
         response_obj, created = UserResponse.objects.update_or_create(
             parent_quiz=quiz,
-            response_id=0,
+            response_id=generate_new_id(quiz_id),
         )
-        if response_obj.response_id is 0:
-            response_obj, created = UserResponse.objects.update_or_create(
-                parent_quiz=quiz,
-                response_id=UserResponse.generate_new_id(response_obj, quiz_id),
-            )
 
         return response_obj.response_id
 
@@ -325,15 +330,18 @@ def select_answer(request, quiz_id, category_id, question_id):
         })
     else:
         # Update session variables based on selection
-        question_scores = request.session[quiz.session_quiz_data()]
-        question_scores[str(category_name)][str(question_text)] = selected_answer.answer_text
+        question_data = request.session[quiz.session_quiz_data()]
+        question_data[str(category_name)][str(question_text)] = selected_answer.answer_text
         category_score = request.session[quiz.session_cat_data()]
         answer_score = selected_answer.answer_weight
         if category_score[str(category_name)] is None:
             category_score[str(category_name)] = answer_score
         elif category_score[str(category_name)] is not None:
             category_score[str(category_name)] = category_score[str(category_name)] + answer_score
+
+        # Save session variables
         request.session[quiz.session_cat_data()] = category_score
+        request.session[quiz.session_quiz_data()] = question_data
 
         # Continue with quiz, or redirect to feedback when on last question
         if question_id == last_question:  # Finished Answering Questions for quiz, redirect to feedback
@@ -376,9 +384,13 @@ def normalize_scores(request, quiz_id):
         category = categories[i]
         old_max_list.append(len(quiz_data[str(category.category_name)]))
 
-    # Normalizing the old scores and populating the session variable session_norm_data
+    # Normalizing the old scores and populating the session variable session_norm_data, round to 2 decimal places
     norm_score_list = [
-        (10 / (old_max_list[i] - 0)) * (category_score_dict[str(categories[i].category_name)] - old_max_list[i]) + 10
+        round((
+                (10 / (old_max_list[i] - 0)) *
+                (category_score_dict[str(categories[i].category_name)] - old_max_list[i]) + 10
+            ), 2
+        )
         for i in range(len(category_score_dict))
     ]
 
@@ -412,17 +424,16 @@ def get_session_feedback(request, quiz_id):
             question_text = question.question_text
             answer_text = quiz_data[str(category_name)][str(question_text)]
             if answer_text is not None:
-                answer = Answer.objects.filter(answer_text=answer_text).get()
+                answer = Answer.objects.filter(parent_quiz=quiz, answer_text=answer_text).get()
+                check_feedback = answer.get_quiz_feedback().get()
                 if answer.answer_weight < 1:
-                    feedback = answer.get_quiz_feedback().get()
-                    innerdict.update({question_text: feedback.feedback_text})
+                    answer_feedback = check_feedback.feedback_text
+                    innerdict.update({question_text: answer_feedback})
                 if answer.answer_weight == 1:
-                    check_feedback = answer.get_quiz_feedback().get()
-                    if check_feedback is "No Feedback":
-                        feedback = None
-                    else:
-                        feedback = check_feedback
-                    innerdict.update({question_text: feedback})
+                    answer_feedback = check_feedback.feedback_text
+                    if answer_feedback == "No Feedback":
+                        answer_feedback = None
+                    innerdict.update({question_text: answer_feedback})
         feedback_set.update({category_name: innerdict})
     request.session[quiz.session_feedback()] = feedback_set
     return request.session[quiz.session_feedback()]
